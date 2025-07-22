@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Bus Tickets - Admin View</title>
+    <title>Hotel Registrations - Admin View</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -12,18 +12,18 @@
     <header id="header">
         <div class="inner">
             <a href="index.php" class="logo">
-                <span class="fa fa-bus"></span> <span class="title">BUS TICKET BOOKING</span>
+                <span class="fa fa-hotel"></span> <span class="title">HOTEL REGISTRATION</span>
             </a>
             <nav>
                 <ul>
-                    <li><a href="index.php">Back to Booking Form</a></li>
+                    <li><a href="index.php">Back to Registration Form</a></li>
                 </ul>
             </nav>
         </div>
     </header>
     <div id="main">
         <div class="inner">
-            <h1>Bus Tickets</h1>
+            <h1>Hotel Registrations</h1>
             <?php if (isset($_SESSION['success'])): ?>
                 <div class="alert alert-success">
                     <?= $_SESSION['success'] ?>
@@ -31,22 +31,21 @@
                 </div>
             <?php endif; ?>
             <section>
-                <h2>All Tickets</h2>
+                <h2>All Registrations</h2>
                 <div class="table-wrapper">
                     <table>
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Name</th>
+                                <th>Full Name</th>
                                 <th>Email</th>
-                                <th>Age</th>
-                                <th>Gender</th>
-                                <th>Travel Date</th>
-                                <th>Payment Method</th>
-                                <th>Departure</th>
-                                <th>Destination</th>
-                                <th>Tickets</th>
-                                <th>Departure Time</th>
+                                <th>Phone</th>
+                                <th>Address</th>
+                                <th>Check-in</th>
+                                <th>Check-out</th>
+                                <th>Room Type</th>
+                                <th>Guests</th>
+                                <th>Special Requests</th>
                                 <th>Created</th>
                                 <th>Actions</th>
                             </tr>
@@ -54,34 +53,33 @@
                         <tbody>
                         <?php
                         require_once 'database.php';
-                        $db = new Database('localhost', 'root', '', 'bus_ticket_booking');
-                        $tickets = $db->getAllTickets();
-                        if ($tickets && count($tickets) > 0):
-                            foreach ($tickets as $ticket): ?>
+                        $db = new Database('localhost', 'root', '', 'hotel_registration');
+                        $registrations = $db->getAllRegistrations();
+                        if ($registrations && count($registrations) > 0):
+                            foreach ($registrations as $reg): ?>
                                 <tr>
-                                    <td><?= htmlspecialchars($ticket['id']) ?></td>
-                                    <td><?= htmlspecialchars($ticket['name']) ?></td>
-                                    <td><?= htmlspecialchars($ticket['email']) ?></td>
-                                    <td><?= htmlspecialchars($ticket['age']) ?></td>
-                                    <td><?= htmlspecialchars($ticket['gender']) ?></td>
-                                    <td><?= htmlspecialchars($ticket['travel_date']) ?></td>
-                                    <td><?= htmlspecialchars($ticket['payment_method']) ?></td>
-                                    <td><?= htmlspecialchars($ticket['departure_location']) ?></td>
-                                    <td><?= htmlspecialchars($ticket['destination_location']) ?></td>
-                                    <td><?= htmlspecialchars($ticket['number_of_tickets']) ?></td>
-                                    <td><?= htmlspecialchars($ticket['departure_time']) ?></td>
-                                    <td><?= htmlspecialchars($ticket['created_at']) ?></td>
+                                    <td><?= htmlspecialchars($reg['id']) ?></td>
+                                    <td><?= htmlspecialchars($reg['full_name']) ?></td>
+                                    <td><?= htmlspecialchars($reg['email']) ?></td>
+                                    <td><?= htmlspecialchars($reg['phone']) ?></td>
+                                    <td><?= htmlspecialchars($reg['address']) ?></td>
+                                    <td><?= htmlspecialchars($reg['check_in_date']) ?></td>
+                                    <td><?= htmlspecialchars($reg['check_out_date']) ?></td>
+                                    <td><?= htmlspecialchars($reg['room_type']) ?></td>
+                                    <td><?= htmlspecialchars($reg['num_guests']) ?></td>
+                                    <td><?= htmlspecialchars($reg['special_requests'] ?? '') ?></td>
+                                    <td><?= htmlspecialchars($reg['created_at']) ?></td>
                                     <td>
-                                        <a href="update.php?id=<?= $ticket['id'] ?>" class="btn btn-edit">Edit</a>
-                                        <form method="post" action="delete.php" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this ticket?');">
-                                            <input type="hidden" name="id" value="<?= $ticket['id'] ?>">
+                                        <a href="update.php?id=<?= $reg['id'] ?>" class="btn btn-edit">Edit</a>
+                                        <form method="post" action="delete.php" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this registration?');">
+                                            <input type="hidden" name="id" value="<?= $reg['id'] ?>">
                                             <button type="submit" class="btn btn-delete">Delete</button>
                                         </form>
                                     </td>
                                 </tr>
                             <?php endforeach;
                         else: ?>
-                            <tr><td colspan="13">No tickets found.</td></tr>
+                            <tr><td colspan="12">No registrations found.</td></tr>
                         <?php endif; ?>
                         </tbody>
                     </table>
@@ -92,7 +90,7 @@
     <footer id="footer">
         <div class="inner">
             <ul class="copyright">
-                <li>&copy; 2024 Bus Ticket Booking</li>
+                <li>&copy; 2024 Hotel Registration</li>
                 <li>All rights reserved</li>
             </ul>
         </div>

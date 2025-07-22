@@ -7,22 +7,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $_SESSION["errors"] = [];
     $_SESSION["old"] = $_POST;
 
-    $name = trim($_POST['name'] ?? '');
+    $full_name = trim($_POST['full_name'] ?? '');
     $email = trim($_POST['email'] ?? '');
-    $age = trim($_POST['age'] ?? '');
-    $gender = $_POST['gender'] ?? '';
-    $travel_date = $_POST['travel_date'] ?? '';
-    $payment_method = $_POST['payment_method'] ?? '';
-    $departure_location = trim($_POST['departure_location'] ?? '');
-    $destination_location = trim($_POST['destination_location'] ?? '');
-    $number_of_tickets = trim($_POST['number_of_tickets'] ?? '');
-    $departure_time = $_POST['departure_time'] ?? '';
+    $phone = trim($_POST['phone'] ?? '');
+    $address = trim($_POST['address'] ?? '');
+    $check_in_date = $_POST['check_in_date'] ?? '';
+    $check_out_date = $_POST['check_out_date'] ?? '';
+    $room_type = $_POST['room_type'] ?? '';
+    $num_guests = $_POST['num_guests'] ?? '';
+    $special_requests = trim($_POST['special_requests'] ?? '');
 
     // Validation
-    if (empty($name)) {
-        $_SESSION["errors"]["name"] = "Name is required";
-    } elseif (!preg_match('/^[a-zA-Z\s]+$/', $name)) {
-        $_SESSION["errors"]["name"] = "Name must contain only letters and spaces";
+    if (empty($full_name)) {
+        $_SESSION["errors"]["full_name"] = "Full name is required";
+    } elseif (!preg_match('/^[a-zA-Z\s]+$/', $full_name)) {
+        $_SESSION["errors"]["full_name"] = "Name must contain only letters and spaces";
     }
 
     if (empty($email)) {
@@ -31,60 +30,52 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $_SESSION["errors"]["email"] = "Please enter a valid email address";
     }
 
-    if (empty($age)) {
-        $_SESSION["errors"]["age"] = "Age is required";
-    } elseif (!is_numeric($age) || $age < 1 || $age > 120) {
-        $_SESSION["errors"]["age"] = "Please enter a valid age (1-120)";
+    if (empty($phone)) {
+        $_SESSION["errors"]["phone"] = "Phone number is required";
+    } elseif (!preg_match('/^\d{10,15}$/', $phone)) {
+        $_SESSION["errors"]["phone"] = "Phone must contain 10-15 digits";
     }
 
-    if (empty($gender)) {
-        $_SESSION["errors"]["gender"] = "Please select a gender";
-    } elseif (!in_array($gender, ['Male', 'Female', 'Other'])) {
-        $_SESSION["errors"]["gender"] = "Invalid gender selected";
+    if (empty($address)) {
+        $_SESSION["errors"]["address"] = "Address is required";
+    } elseif (strlen($address) < 10) {
+        $_SESSION["errors"]["address"] = "Please provide a complete address";
     }
 
-    if (empty($travel_date)) {
-        $_SESSION["errors"]["travel_date"] = "Travel date is required";
-    } elseif (strtotime($travel_date) < strtotime('today')) {
-        $_SESSION["errors"]["travel_date"] = "Travel date cannot be in the past";
+    if (empty($check_in_date)) {
+        $_SESSION["errors"]["check_in_date"] = "Check-in date is required";
+    }
+    if (empty($check_out_date)) {
+        $_SESSION["errors"]["check_out_date"] = "Check-out date is required";
+    }
+    if (!empty($check_in_date) && !empty($check_out_date)) {
+        if (strtotime($check_out_date) <= strtotime($check_in_date)) {
+            $_SESSION["errors"]["check_out_date"] = "Check-out must be after check-in date";
+        }
     }
 
-    if (empty($payment_method)) {
-        $_SESSION["errors"]["payment_method"] = "Please select a payment method";
-    } elseif (!in_array($payment_method, ['Cash', 'Card', 'Mobile Money'])) {
-        $_SESSION["errors"]["payment_method"] = "Invalid payment method selected";
+    if (empty($room_type)) {
+        $_SESSION["errors"]["room_type"] = "Please select a room type";
     }
 
-    if (empty($departure_location)) {
-        $_SESSION["errors"]["departure_location"] = "Departure location is required";
-    }
-
-    if (empty($destination_location)) {
-        $_SESSION["errors"]["destination_location"] = "Destination location is required";
-    }
-
-    if (empty($number_of_tickets)) {
-        $_SESSION["errors"]["number_of_tickets"] = "Number of tickets is required";
-    } elseif (!is_numeric($number_of_tickets) || $number_of_tickets < 1) {
-        $_SESSION["errors"]["number_of_tickets"] = "Tickets must be a positive number";
-    }
-
-    if (empty($departure_time)) {
-        $_SESSION["errors"]["departure_time"] = "Departure time is required";
+    if (empty($num_guests)) {
+        $_SESSION["errors"]["num_guests"] = "Number of guests is required";
+    } elseif (!is_numeric($num_guests) || $num_guests < 1) {
+        $_SESSION["errors"]["num_guests"] = "Guests must be a positive number";
     }
 
     // If no errors, store data and redirect
     if (empty($_SESSION["errors"])) {
-        $db = new Database("localhost", "root", "", "bus_ticket_booking");
-        $result = $db->createTicket($name, $email, $age, $gender, $travel_date, $payment_method, $departure_location, $destination_location, $number_of_tickets, $departure_time);
+        $db = new Database("localhost", "root", "", "hotel_registration");
+        $result = $db->createRegistration($full_name, $email, $phone, $address, $check_in_date, $check_out_date, $room_type, $num_guests, $special_requests);
         if ($result === true) {
             unset($_SESSION["errors"]);
             unset($_SESSION["old"]);
-            $_SESSION["success"] = "Ticket booked successfully!";
+            $_SESSION["success"] = "Registration successful!";
             header("Location: index.php");
             exit;
         } else {
-            $_SESSION["errors"]["general"] = "Failed to book ticket: $result";
+            $_SESSION["errors"]["general"] = "Failed to register: $result";
             header("Location: index.php");
             exit;
         }

@@ -30,11 +30,11 @@ class Database
     }
 
     // CREATE
-    public function createTicket($name, $email, $age, $gender, $travel_date, $payment_method, $departure_location, $destination_location, $number_of_tickets, $departure_time)
+    public function createRegistration($full_name, $email, $phone, $address, $check_in_date, $check_out_date, $room_type, $num_guests, $special_requests)
     {
         try {
-            $query = $this->db->prepare("INSERT INTO bus_tickets (name, email, age, gender, travel_date, payment_method, departure_location, destination_location, number_of_tickets, departure_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $query->execute([$name, $email, $age, $gender, $travel_date, $payment_method, $departure_location, $destination_location, $number_of_tickets, $departure_time]);
+            $query = $this->db->prepare("INSERT INTO hotel_registrations (full_name, email, phone, address, check_in_date, check_out_date, room_type, num_guests, special_requests) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $query->execute([$full_name, $email, $phone, $address, $check_in_date, $check_out_date, $room_type, $num_guests, $special_requests]);
             return true;
         } catch (PDOException $e) {
             return $e->getMessage();
@@ -42,10 +42,10 @@ class Database
     }
 
     // READ ALL
-    public function getAllTickets()
+    public function getAllRegistrations()
     {
         try {
-            $query = $this->db->query("SELECT * FROM bus_tickets ORDER BY created_at DESC");
+            $query = $this->db->query("SELECT * FROM hotel_registrations ORDER BY created_at DESC");
             return $query->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             return [];
@@ -53,10 +53,10 @@ class Database
     }
 
     // READ ONE
-    public function getTicket($id)
+    public function getRegistration($id)
     {
         try {
-            $query = $this->db->prepare("SELECT * FROM bus_tickets WHERE id = ?");
+            $query = $this->db->prepare("SELECT * FROM hotel_registrations WHERE id = ?");
             $query->execute([$id]);
             return $query->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
@@ -65,11 +65,11 @@ class Database
     }
 
     // UPDATE
-    public function updateTicket($id, $name, $email, $age, $gender, $travel_date, $payment_method, $departure_location, $destination_location, $number_of_tickets, $departure_time)
+    public function updateRegistration($id, $full_name, $email, $phone, $address, $check_in_date, $check_out_date, $room_type, $num_guests, $special_requests)
     {
         try {
-            $query = $this->db->prepare("UPDATE bus_tickets SET name=?, email=?, age=?, gender=?, travel_date=?, payment_method=?, departure_location=?, destination_location=?, number_of_tickets=?, departure_time=? WHERE id=?");
-            $query->execute([$name, $email, $age, $gender, $travel_date, $payment_method, $departure_location, $destination_location, $number_of_tickets, $departure_time, $id]);
+            $query = $this->db->prepare("UPDATE hotel_registrations SET full_name=?, email=?, phone=?, address=?, check_in_date=?, check_out_date=?, room_type=?, num_guests=?, special_requests=? WHERE id=?");
+            $query->execute([$full_name, $email, $phone, $address, $check_in_date, $check_out_date, $room_type, $num_guests, $special_requests, $id]);
             return true;
         } catch (PDOException $e) {
             return $e->getMessage();
@@ -77,10 +77,10 @@ class Database
     }
 
     // DELETE
-    public function deleteTicket($id)
+    public function deleteRegistration($id)
     {
         try {
-            $query = $this->db->prepare("DELETE FROM bus_tickets WHERE id = ?");
+            $query = $this->db->prepare("DELETE FROM hotel_registrations WHERE id = ?");
             $query->execute([$id]);
             return true;
         } catch (PDOException $e) {

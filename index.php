@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Bus Ticket Booking System</title>
+    <title>Hotel Registration System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -12,18 +12,18 @@
     <header id="header">
         <div class="inner">
             <a href="index.php" class="logo">
-                <span class="fa fa-bus"></span> <span class="title">BUS TICKET BOOKING</span>
+                <span class="fa fa-hotel"></span> <span class="title">HOTEL REGISTRATION</span>
             </a>
             <nav>
                 <ul>
-                    <li><a href="viewbooking.php">View Tickets</a></li>
+                    <li><a href="viewbooking.php">View Registrations</a></li>
                 </ul>
             </nav>
         </div>
     </header>
     <div id="main">
         <div class="inner">
-            <h1>Bus Ticket Booking Form</h1>
+            <h1>Hotel Registration Form</h1>
             <?php if (isset($_SESSION['success'])): ?>
                 <div class="alert alert-success">
                     <?= $_SESSION['success'] ?>
@@ -34,9 +34,9 @@
                 <form method="post" action="process.php">
                     <div class="fields">
                         <div class="field">
-                            <label for="name">Name</label>
-                            <input type="text" name="name" id="name" value="<?= $_SESSION['old']['name'] ?? '' ?>">
-                            <p style="color:red;"> <?= $_SESSION['errors']['name'] ?? '' ?> </p>
+                            <label for="full_name">Full Name</label>
+                            <input type="text" name="full_name" id="full_name" value="<?= $_SESSION['old']['full_name'] ?? '' ?>">
+                            <p style="color:red;"> <?= $_SESSION['errors']['full_name'] ?? '' ?> </p>
                         </div>
                         <div class="field">
                             <label for="email">Email</label>
@@ -44,59 +44,49 @@
                             <p style="color:red;"> <?= $_SESSION['errors']['email'] ?? '' ?> </p>
                         </div>
                         <div class="field">
-                            <label for="age">Age</label>
-                            <input type="number" name="age" id="age" min="1" value="<?= $_SESSION['old']['age'] ?? '' ?>">
-                            <p style="color:red;"> <?= $_SESSION['errors']['age'] ?? '' ?> </p>
+                            <label for="phone">Phone</label>
+                            <input type="text" name="phone" id="phone" value="<?= $_SESSION['old']['phone'] ?? '' ?>">
+                            <p style="color:red;"> <?= $_SESSION['errors']['phone'] ?? '' ?> </p>
                         </div>
                         <div class="field">
-                            <label for="gender">Gender</label>
-                            <select name="gender" id="gender">
-                                <option value="">---Select Gender---</option>
-                                <option value="Male" <?= (($_SESSION['old']['gender'] ?? '') === 'Male') ? 'selected' : '' ?>>Male</option>
-                                <option value="Female" <?= (($_SESSION['old']['gender'] ?? '') === 'Female') ? 'selected' : '' ?>>Female</option>
-                                <option value="Other" <?= (($_SESSION['old']['gender'] ?? '') === 'Other') ? 'selected' : '' ?>>Other</option>
+                            <label for="address">Address</label>
+                            <input type="text" name="address" id="address" value="<?= $_SESSION['old']['address'] ?? '' ?>">
+                            <p style="color:red;"> <?= $_SESSION['errors']['address'] ?? '' ?> </p>
+                        </div>
+                        <div class="field">
+                            <label for="check_in_date">Check-in Date</label>
+                            <input type="date" name="check_in_date" id="check_in_date" value="<?= $_SESSION['old']['check_in_date'] ?? '' ?>">
+                            <p style="color:red;"> <?= $_SESSION['errors']['check_in_date'] ?? '' ?> </p>
+                        </div>
+                        <div class="field">
+                            <label for="check_out_date">Check-out Date</label>
+                            <input type="date" name="check_out_date" id="check_out_date" value="<?= $_SESSION['old']['check_out_date'] ?? '' ?>">
+                            <p style="color:red;"> <?= $_SESSION['errors']['check_out_date'] ?? '' ?> </p>
+                        </div>
+                        <div class="field">
+                            <label for="room_type">Room Type</label>
+                            <select name="room_type" id="room_type">
+                                <option value="">---Select Room Type---</option>
+                                <option value="Single" <?= (($_SESSION['old']['room_type'] ?? '') === 'Single') ? 'selected' : '' ?>>Single</option>
+                                <option value="Double" <?= (($_SESSION['old']['room_type'] ?? '') === 'Double') ? 'selected' : '' ?>>Double</option>
+                                <option value="Suite" <?= (($_SESSION['old']['room_type'] ?? '') === 'Suite') ? 'selected' : '' ?>>Suite</option>
+                                <option value="Family" <?= (($_SESSION['old']['room_type'] ?? '') === 'Family') ? 'selected' : '' ?>>Family</option>
                             </select>
-                            <p style="color:red;"> <?= $_SESSION['errors']['gender'] ?? '' ?> </p>
+                            <p style="color:red;"> <?= $_SESSION['errors']['room_type'] ?? '' ?> </p>
                         </div>
                         <div class="field">
-                            <label for="travel_date">Travel Date</label>
-                            <input type="date" name="travel_date" id="travel_date" value="<?= $_SESSION['old']['travel_date'] ?? '' ?>">
-                            <p style="color:red;"> <?= $_SESSION['errors']['travel_date'] ?? '' ?> </p>
+                            <label for="num_guests">Number of Guests</label>
+                            <input type="number" name="num_guests" id="num_guests" min="1" value="<?= $_SESSION['old']['num_guests'] ?? '' ?>">
+                            <p style="color:red;"> <?= $_SESSION['errors']['num_guests'] ?? '' ?> </p>
                         </div>
                         <div class="field">
-                            <label for="payment_method">Payment Method</label>
-                            <select name="payment_method" id="payment_method">
-                                <option value="">---Select Payment Method---</option>
-                                <option value="Cash" <?= (($_SESSION['old']['payment_method'] ?? '') === 'Cash') ? 'selected' : '' ?>>Cash</option>
-                                <option value="Card" <?= (($_SESSION['old']['payment_method'] ?? '') === 'Card') ? 'selected' : '' ?>>Card</option>
-                                <option value="Mobile Money" <?= (($_SESSION['old']['payment_method'] ?? '') === 'Mobile Money') ? 'selected' : '' ?>>Mobile Money</option>
-                            </select>
-                            <p style="color:red;"> <?= $_SESSION['errors']['payment_method'] ?? '' ?> </p>
-                        </div>
-                        <div class="field">
-                            <label for="departure_location">Departure Location</label>
-                            <input type="text" name="departure_location" id="departure_location" value="<?= $_SESSION['old']['departure_location'] ?? '' ?>">
-                            <p style="color:red;"> <?= $_SESSION['errors']['departure_location'] ?? '' ?> </p>
-                        </div>
-                        <div class="field">
-                            <label for="destination_location">Destination Location</label>
-                            <input type="text" name="destination_location" id="destination_location" value="<?= $_SESSION['old']['destination_location'] ?? '' ?>">
-                            <p style="color:red;"> <?= $_SESSION['errors']['destination_location'] ?? '' ?> </p>
-                        </div>
-                        <div class="field">
-                            <label for="number_of_tickets">Number of Tickets</label>
-                            <input type="number" name="number_of_tickets" id="number_of_tickets" min="1" value="<?= $_SESSION['old']['number_of_tickets'] ?? '' ?>">
-                            <p style="color:red;"> <?= $_SESSION['errors']['number_of_tickets'] ?? '' ?> </p>
-                        </div>
-                        <div class="field">
-                            <label for="departure_time">Departure Time</label>
-                            <input type="time" name="departure_time" id="departure_time" value="<?= $_SESSION['old']['departure_time'] ?? '' ?>">
-                            <p style="color:red;"> <?= $_SESSION['errors']['departure_time'] ?? '' ?> </p>
+                            <label for="special_requests">Special Requests</label>
+                            <textarea name="special_requests" id="special_requests" rows="2"><?= $_SESSION['old']['special_requests'] ?? '' ?></textarea>
                         </div>
                     </div>
                     <div class="field text-right">
                         <ul class="actions">
-                            <li><input type="submit" value="Book Ticket" class="primary"></li>
+                            <li><input type="submit" value="Register" class="primary"></li>
                         </ul>
                     </div>
                 </form>
@@ -105,14 +95,14 @@
             </section>
         </div>
     </div>
-    <footer id="footer">
+    <!-- <footer id="footer">
         <div class="inner">
             <ul class="copyright">
-                <li>&copy; 2024 Bus Ticket Booking</li>
+                <li>&copy; 2024 Hotel Registration</li>
                 <li>All rights reserved</li>
             </ul>
         </div>
-    </footer>
+    </footer> -->
 </div>
 </body>
 </html>

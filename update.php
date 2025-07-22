@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once 'database.php';
-$db = new Database('localhost', 'root', '', 'bus_ticket_booking');
+$db = new Database('localhost', 'root', '', 'hotel_registration');
 
 // Fetch record
 if (!isset($_GET['id'])) {
@@ -9,76 +9,70 @@ if (!isset($_GET['id'])) {
     exit;
 }
 $id = intval($_GET['id']);
-$ticket = $db->getTicket($id);
-if (!$ticket) {
-    $_SESSION['success'] = 'Ticket not found.';
+$reg = $db->getRegistration($id);
+if (!$reg) {
+    $_SESSION['success'] = 'Registration not found.';
     header('Location: viewbooking.php');
     exit;
 }
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = trim($_POST['name'] ?? '');
+    $full_name = trim($_POST['full_name'] ?? '');
     $email = trim($_POST['email'] ?? '');
-    $age = trim($_POST['age'] ?? '');
-    $gender = $_POST['gender'] ?? '';
-    $travel_date = $_POST['travel_date'] ?? '';
-    $payment_method = $_POST['payment_method'] ?? '';
-    $departure_location = trim($_POST['departure_location'] ?? '');
-    $destination_location = trim($_POST['destination_location'] ?? '');
-    $number_of_tickets = trim($_POST['number_of_tickets'] ?? '');
-    $departure_time = $_POST['departure_time'] ?? '';
+    $phone = trim($_POST['phone'] ?? '');
+    $address = trim($_POST['address'] ?? '');
+    $check_in_date = $_POST['check_in_date'] ?? '';
+    $check_out_date = $_POST['check_out_date'] ?? '';
+    $room_type = $_POST['room_type'] ?? '';
+    $num_guests = $_POST['num_guests'] ?? '';
+    $special_requests = trim($_POST['special_requests'] ?? '');
 
     // Validation (same as process.php)
-    if (empty($name)) {
-        $errors['name'] = 'Name is required';
-    } elseif (!preg_match('/^[a-zA-Z\s]+$/', $name)) {
-        $errors['name'] = 'Name must contain only letters and spaces';
+    if (empty($full_name)) {
+        $errors['full_name'] = 'Full name is required';
+    } elseif (!preg_match('/^[a-zA-Z\s]+$/', $full_name)) {
+        $errors['full_name'] = 'Name must contain only letters and spaces';
     }
     if (empty($email)) {
         $errors['email'] = 'Email is required';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors['email'] = 'Please enter a valid email address';
     }
-    if (empty($age)) {
-        $errors['age'] = 'Age is required';
-    } elseif (!is_numeric($age) || $age < 1 || $age > 120) {
-        $errors['age'] = 'Please enter a valid age (1-120)';
+    if (empty($phone)) {
+        $errors['phone'] = 'Phone number is required';
+    } elseif (!preg_match('/^\d{10,15}$/', $phone)) {
+        $errors['phone'] = 'Phone must contain 10-15 digits';
     }
-    if (empty($gender)) {
-        $errors['gender'] = 'Please select a gender';
-    } elseif (!in_array($gender, ['Male', 'Female', 'Other'])) {
-        $errors['gender'] = 'Invalid gender selected';
+    if (empty($address)) {
+        $errors['address'] = 'Address is required';
+    } elseif (strlen($address) < 10) {
+        $errors['address'] = 'Please provide a complete address';
     }
-    if (empty($travel_date)) {
-        $errors['travel_date'] = 'Travel date is required';
-    } elseif (strtotime($travel_date) < strtotime('today')) {
-        $errors['travel_date'] = 'Travel date cannot be in the past';
+    if (empty($check_in_date)) {
+        $errors['check_in_date'] = 'Check-in date is required';
     }
-    if (empty($payment_method)) {
-        $errors['payment_method'] = 'Please select a payment method';
-    } elseif (!in_array($payment_method, ['Cash', 'Card', 'Mobile Money'])) {
-        $errors['payment_method'] = 'Invalid payment method selected';
+    if (empty($check_out_date)) {
+        $errors['check_out_date'] = 'Check-out date is required';
     }
-    if (empty($departure_location)) {
-        $errors['departure_location'] = 'Departure location is required';
+    if (!empty($check_in_date) && !empty($check_out_date)) {
+        if (strtotime($check_out_date) <= strtotime($check_in_date)) {
+            $errors['check_out_date'] = 'Check-out must be after check-in date';
+        }
     }
-    if (empty($destination_location)) {
-        $errors['destination_location'] = 'Destination location is required';
+    if (empty($room_type)) {
+        $errors['room_type'] = 'Please select a room type';
     }
-    if (empty($number_of_tickets)) {
-        $errors['number_of_tickets'] = 'Number of tickets is required';
-    } elseif (!is_numeric($number_of_tickets) || $number_of_tickets < 1) {
-        $errors['number_of_tickets'] = 'Tickets must be a positive number';
-    }
-    if (empty($departure_time)) {
-        $errors['departure_time'] = 'Departure time is required';
+    if (empty($num_guests)) {
+        $errors['num_guests'] = 'Number of guests is required';
+    } elseif (!is_numeric($num_guests) || $num_guests < 1) {
+        $errors['num_guests'] = 'Guests must be a positive number';
     }
 
     if (empty($errors)) {
-        $result = $db->updateTicket($id, $name, $email, $age, $gender, $travel_date, $payment_method, $departure_location, $destination_location, $number_of_tickets, $departure_time);
+        $result = $db->updateRegistration($id, $full_name, $email, $phone, $address, $check_in_date, $check_out_date, $room_type, $num_guests, $special_requests);
         if ($result === true) {
-            $_SESSION['success'] = 'Ticket updated successfully!';
+            $_SESSION['success'] = 'Registration updated successfully!';
             header('Location: viewbooking.php');
             exit;
         } else {
@@ -86,14 +80,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     // If errors, keep form filled
-    $ticket = array_merge($ticket, $_POST);
+    $reg = array_merge($reg, $_POST);
 }
 ?>
 <!DOCTYPE html>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Edit Ticket</title>
+    <title>Edit Registration</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -102,82 +96,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <header id="header">
         <div class="inner">
             <a href="index.php" class="logo">
-                <span class="fa fa-bus"></span> <span class="title">BUS TICKET BOOKING</span>
+                <span class="fa fa-hotel"></span> <span class="title">HOTEL REGISTRATION</span>
             </a>
             <nav>
                 <ul>
-                    <li><a href="viewbooking.php">Back to Tickets</a></li>
+                    <li><a href="viewbooking.php">Back to Registrations</a></li>
                 </ul>
             </nav>
         </div>
     </header>
     <div id="main">
         <div class="inner">
-            <h1>Edit Ticket</h1>
+            <h1>Edit Registration</h1>
             <?php if (!empty($errors['general'])): ?>
                 <div class="alert alert-error"> <?= $errors['general'] ?> </div>
             <?php endif; ?>
             <form method="post">
                 <div class="fields">
                     <div class="field">
-                        <label for="name">Name</label>
-                        <input type="text" name="name" id="name" value="<?= htmlspecialchars($ticket['name']) ?>">
-                        <p style="color:red;"> <?= $errors['name'] ?? '' ?> </p>
+                        <label for="full_name">Full Name</label>
+                        <input type="text" name="full_name" id="full_name" value="<?= htmlspecialchars($reg['full_name']) ?>">
+                        <p style="color:red;"> <?= $errors['full_name'] ?? '' ?> </p>
                     </div>
                     <div class="field">
                         <label for="email">Email</label>
-                        <input type="email" name="email" id="email" value="<?= htmlspecialchars($ticket['email']) ?>">
+                        <input type="email" name="email" id="email" value="<?= htmlspecialchars($reg['email']) ?>">
                         <p style="color:red;"> <?= $errors['email'] ?? '' ?> </p>
                     </div>
                     <div class="field">
-                        <label for="age">Age</label>
-                        <input type="number" name="age" id="age" min="1" value="<?= htmlspecialchars($ticket['age']) ?>">
-                        <p style="color:red;"> <?= $errors['age'] ?? '' ?> </p>
+                        <label for="phone">Phone</label>
+                        <input type="text" name="phone" id="phone" value="<?= htmlspecialchars($reg['phone']) ?>">
+                        <p style="color:red;"> <?= $errors['phone'] ?? '' ?> </p>
                     </div>
                     <div class="field">
-                        <label for="gender">Gender</label>
-                        <select name="gender" id="gender">
-                            <option value="">---Select Gender---</option>
-                            <option value="Male" <?= ($ticket['gender'] === 'Male') ? 'selected' : '' ?>>Male</option>
-                            <option value="Female" <?= ($ticket['gender'] === 'Female') ? 'selected' : '' ?>>Female</option>
-                            <option value="Other" <?= ($ticket['gender'] === 'Other') ? 'selected' : '' ?>>Other</option>
+                        <label for="address">Address</label>
+                        <input type="text" name="address" id="address" value="<?= htmlspecialchars($reg['address']) ?>">
+                        <p style="color:red;"> <?= $errors['address'] ?? '' ?> </p>
+                    </div>
+                    <div class="field">
+                        <label for="check_in_date">Check-in Date</label>
+                        <input type="date" name="check_in_date" id="check_in_date" value="<?= htmlspecialchars($reg['check_in_date']) ?>">
+                        <p style="color:red;"> <?= $errors['check_in_date'] ?? '' ?> </p>
+                    </div>
+                    <div class="field">
+                        <label for="check_out_date">Check-out Date</label>
+                        <input type="date" name="check_out_date" id="check_out_date" value="<?= htmlspecialchars($reg['check_out_date']) ?>">
+                        <p style="color:red;"> <?= $errors['check_out_date'] ?? '' ?> </p>
+                    </div>
+                    <div class="field">
+                        <label for="room_type">Room Type</label>
+                        <select name="room_type" id="room_type">
+                            <option value="">---Select Room Type---</option>
+                            <option value="Single" <?= ($reg['room_type'] === 'Single') ? 'selected' : '' ?>>Single</option>
+                            <option value="Double" <?= ($reg['room_type'] === 'Double') ? 'selected' : '' ?>>Double</option>
+                            <option value="Suite" <?= ($reg['room_type'] === 'Suite') ? 'selected' : '' ?>>Suite</option>
+                            <option value="Family" <?= ($reg['room_type'] === 'Family') ? 'selected' : '' ?>>Family</option>
                         </select>
-                        <p style="color:red;"> <?= $errors['gender'] ?? '' ?> </p>
+                        <p style="color:red;"> <?= $errors['room_type'] ?? '' ?> </p>
                     </div>
                     <div class="field">
-                        <label for="travel_date">Travel Date</label>
-                        <input type="date" name="travel_date" id="travel_date" value="<?= htmlspecialchars($ticket['travel_date']) ?>">
-                        <p style="color:red;"> <?= $errors['travel_date'] ?? '' ?> </p>
+                        <label for="num_guests">Number of Guests</label>
+                        <input type="number" name="num_guests" id="num_guests" min="1" value="<?= htmlspecialchars($reg['num_guests']) ?>">
+                        <p style="color:red;"> <?= $errors['num_guests'] ?? '' ?> </p>
                     </div>
                     <div class="field">
-                        <label for="payment_method">Payment Method</label>
-                        <select name="payment_method" id="payment_method">
-                            <option value="">---Select Payment Method---</option>
-                            <option value="Cash" <?= ($ticket['payment_method'] === 'Cash') ? 'selected' : '' ?>>Cash</option>
-                            <option value="Card" <?= ($ticket['payment_method'] === 'Card') ? 'selected' : '' ?>>Card</option>
-                            <option value="Mobile Money" <?= ($ticket['payment_method'] === 'Mobile Money') ? 'selected' : '' ?>>Mobile Money</option>
-                        </select>
-                        <p style="color:red;"> <?= $errors['payment_method'] ?? '' ?> </p>
-                    </div>
-                    <div class="field">
-                        <label for="departure_location">Departure Location</label>
-                        <input type="text" name="departure_location" id="departure_location" value="<?= htmlspecialchars($ticket['departure_location']) ?>">
-                        <p style="color:red;"> <?= $errors['departure_location'] ?? '' ?> </p>
-                    </div>
-                    <div class="field">
-                        <label for="destination_location">Destination Location</label>
-                        <input type="text" name="destination_location" id="destination_location" value="<?= htmlspecialchars($ticket['destination_location']) ?>">
-                        <p style="color:red;"> <?= $errors['destination_location'] ?? '' ?> </p>
-                    </div>
-                    <div class="field">
-                        <label for="number_of_tickets">Number of Tickets</label>
-                        <input type="number" name="number_of_tickets" id="number_of_tickets" min="1" value="<?= htmlspecialchars($ticket['number_of_tickets']) ?>">
-                        <p style="color:red;"> <?= $errors['number_of_tickets'] ?? '' ?> </p>
-                    </div>
-                    <div class="field">
-                        <label for="departure_time">Departure Time</label>
-                        <input type="time" name="departure_time" id="departure_time" value="<?= htmlspecialchars($ticket['departure_time']) ?>">
-                        <p style="color:red;"> <?= $errors['departure_time'] ?? '' ?> </p>
+                        <label for="special_requests">Special Requests</label>
+                        <textarea name="special_requests" id="special_requests" rows="2"><?= htmlspecialchars($reg['special_requests']) ?></textarea>
                     </div>
                 </div>
                 <div class="field text-right">
@@ -191,7 +175,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <footer id="footer">
         <div class="inner">
             <ul class="copyright">
-                <li>&copy; 2024 Bus Ticket Booking</li>
+                <li>&copy; 2024 Hotel Registration</li>
                 <li>All rights reserved</li>
             </ul>
         </div>
