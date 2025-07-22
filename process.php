@@ -4,78 +4,71 @@ session_start();
 require_once("database.php");
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $_SESSION["errors"] = [];
-    $_SESSION["old"] = $_POST;
-
-    $full_name = trim($_POST['full_name'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $phone = trim($_POST['phone'] ?? '');
-    $address = trim($_POST['address'] ?? '');
-    $check_in_date = $_POST['check_in_date'] ?? '';
-    $check_out_date = $_POST['check_out_date'] ?? '';
-    $room_type = $_POST['room_type'] ?? '';
-    $num_guests = $_POST['num_guests'] ?? '';
-    $special_requests = trim($_POST['special_requests'] ?? '');
-
-    // Validation
-    if (empty($full_name)) {
-        $_SESSION["errors"]["full_name"] = "Full name is required";
-    } elseif (!preg_match('/^[a-zA-Z\s]+$/', $full_name)) {
-        $_SESSION["errors"]["full_name"] = "Name must contain only letters and spaces";
+    
+    if (!isset($_SESSION["errors"])) {
+        $_SESSION["errors"] = [];
     }
 
-    if (empty($email)) {
-        $_SESSION["errors"]["email"] = "Email is required";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $_SESSION["errors"]["email"] = "Please enter a valid email address";
+    $student_name = trim($_POST['student_name']);
+    $student_id = trim($_POST['student_id']);
+    $class = trim($_POST['class']);
+    $subject = trim($_POST['subject']);
+    $date = trim($_POST['date']);
+    $status = trim($_POST['status']);
+    $remarks = trim($_POST['remarks']);
+    $teacher_name = trim($_POST['teacher_name']);
+    $period = trim($_POST['period']);
+
+    if (empty($student_name)) {
+        $_SESSION["errors"]["student_name"] = "Student name is required";
+    } elseif (!preg_match('/^[a-zA-Z\s]+$/', $student_name)) {
+        $_SESSION["errors"]["student_name"] = "Name must contain only letters and spaces";
+    }
+    if (empty($student_id)) {
+        $_SESSION["errors"]["student_id"] = "Student ID is required";
+    } elseif (!preg_match('/^[A-Za-z0-9\-]+$/', $student_id)) {
+        $_SESSION["errors"]["student_id"] = "Invalid Student ID format";
+    }
+    if (empty($class)) {
+        $_SESSION["errors"]["class"] = "Class is required";
+    }
+    if (empty($subject)) {
+        $_SESSION["errors"]["subject"] = "Subject is required";
+    }
+    if (empty($date)) {
+        $_SESSION["errors"]["date"] = "Date is required";
+    } elseif (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+        $_SESSION["errors"]["date"] = "Invalid date format";
+    }
+    if (empty($status)) {
+        $_SESSION["errors"]["status"] = "Status is required";
+    } elseif (!in_array($status, ['Present', 'Absent', 'Late'])) {
+        $_SESSION["errors"]["status"] = "Invalid status";
+    }
+    
+    if (!empty($remarks) && strlen($remarks) > 255) {
+        $_SESSION["errors"]["remarks"] = "Remarks too long";
+    }
+    if (empty($teacher_name)) {
+        $_SESSION["errors"]["teacher_name"] = "Teacher name is required";
+    } elseif (!preg_match('/^[a-zA-Z\s]+$/', $teacher_name)) {
+        $_SESSION["errors"]["teacher_name"] = "Teacher name must contain only letters and spaces";
+    }
+    if (empty($period)) {
+        $_SESSION["errors"]["period"] = "Period is required";
     }
 
-    if (empty($phone)) {
-        $_SESSION["errors"]["phone"] = "Phone number is required";
-    } elseif (!preg_match('/^\d{10,15}$/', $phone)) {
-        $_SESSION["errors"]["phone"] = "Phone must contain 10-15 digits";
-    }
-
-    if (empty($address)) {
-        $_SESSION["errors"]["address"] = "Address is required";
-    } elseif (strlen($address) < 10) {
-        $_SESSION["errors"]["address"] = "Please provide a complete address";
-    }
-
-    if (empty($check_in_date)) {
-        $_SESSION["errors"]["check_in_date"] = "Check-in date is required";
-    }
-    if (empty($check_out_date)) {
-        $_SESSION["errors"]["check_out_date"] = "Check-out date is required";
-    }
-    if (!empty($check_in_date) && !empty($check_out_date)) {
-        if (strtotime($check_out_date) <= strtotime($check_in_date)) {
-            $_SESSION["errors"]["check_out_date"] = "Check-out must be after check-in date";
-        }
-    }
-
-    if (empty($room_type)) {
-        $_SESSION["errors"]["room_type"] = "Please select a room type";
-    }
-
-    if (empty($num_guests)) {
-        $_SESSION["errors"]["num_guests"] = "Number of guests is required";
-    } elseif (!is_numeric($num_guests) || $num_guests < 1) {
-        $_SESSION["errors"]["num_guests"] = "Guests must be a positive number";
-    }
-
-    // If no errors, store data and redirect
+   
     if (empty($_SESSION["errors"])) {
-        $db = new Database("localhost", "root", "", "hotel_registration");
-        $result = $db->createRegistration($full_name, $email, $phone, $address, $check_in_date, $check_out_date, $room_type, $num_guests, $special_requests);
-        if ($result === true) {
+        $db = new Database("localhost", "root", "", "class_attendance");
+        if ($db->storeAttendance($student_name, $student_id, $class, $subject, $date, $status, $remarks, $teacher_name, $period)) {
+            
             unset($_SESSION["errors"]);
-            unset($_SESSION["old"]);
-            $_SESSION["success"] = "Registration successful!";
+            $_SESSION["success"] = "Attendance recorded successfully!";
             header("Location: index.php");
             exit;
         } else {
-            $_SESSION["errors"]["general"] = "Failed to register: $result";
+            $_SESSION["errors"]["general"] = "Failed to record attendance. Please try again.";
             header("Location: index.php");
             exit;
         }
@@ -83,4 +76,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         header("Location: index.php");
         exit;
     }
+}
+
+if (isset($_GET['delete'])) {
+    $id = intval($_GET['delete']);
+    $db = new Database("localhost", "root", "", "class_attendance");
+    if ($db->deleteAttendance($id)) {
+        $_SESSION['success'] = "Attendance record deleted successfully!";
+    } else {
+        $_SESSION['errors']['general'] = "Failed to delete attendance record.";
+    }
+    header("Location: view.php");
+    exit;
 }

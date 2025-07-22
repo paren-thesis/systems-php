@@ -29,62 +29,83 @@ class Database
         }
     }
 
-    // CREATE
-    public function createRegistration($full_name, $email, $phone, $address, $check_in_date, $check_out_date, $room_type, $num_guests, $special_requests)
+    public function storeAttendance($student_name, $student_id, $class, $subject, $date, $status, $remarks, $teacher_name, $period)
     {
         try {
-            $query = $this->db->prepare("INSERT INTO hotel_registrations (full_name, email, phone, address, check_in_date, check_out_date, room_type, num_guests, special_requests) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $query->execute([$full_name, $email, $phone, $address, $check_in_date, $check_out_date, $room_type, $num_guests, $special_requests]);
+            $query = $this->db->prepare("INSERT INTO attendance (student_name, student_id, class, subject, date, status, remarks, teacher_name, period) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $query->bindParam(1, $student_name);
+            $query->bindParam(2, $student_id);
+            $query->bindParam(3, $class);
+            $query->bindParam(4, $subject);
+            $query->bindParam(5, $date);
+            $query->bindParam(6, $status);
+            $query->bindParam(7, $remarks);
+            $query->bindParam(8, $teacher_name);
+            $query->bindParam(9, $period);
+            $query->execute();
             return true;
         } catch (PDOException $e) {
-            return $e->getMessage();
+            echo "Failed to insert attendance: " . $e->getMessage();
+            return false;
         }
     }
 
-    // READ ALL
-    public function getAllRegistrations()
+    public function getAllAttendance()
     {
         try {
-            $query = $this->db->query("SELECT * FROM hotel_registrations ORDER BY created_at DESC");
+            $query = $this->db->query("SELECT * FROM attendance ORDER BY recorded_at DESC");
             return $query->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
+            echo "Failed to fetch attendance: " . $e->getMessage();
             return [];
         }
     }
 
-    // READ ONE
-    public function getRegistration($id)
+    public function updateAttendance($id, $student_name, $student_id, $class, $subject, $date, $status, $remarks, $teacher_name, $period)
     {
         try {
-            $query = $this->db->prepare("SELECT * FROM hotel_registrations WHERE id = ?");
-            $query->execute([$id]);
+            $query = $this->db->prepare("UPDATE attendance SET student_name=?, student_id=?, class=?, subject=?, date=?, status=?, remarks=?, teacher_name=?, period=? WHERE id=?");
+            $query->bindParam(1, $student_name);
+            $query->bindParam(2, $student_id);
+            $query->bindParam(3, $class);
+            $query->bindParam(4, $subject);
+            $query->bindParam(5, $date);
+            $query->bindParam(6, $status);
+            $query->bindParam(7, $remarks);
+            $query->bindParam(8, $teacher_name);
+            $query->bindParam(9, $period);
+            $query->bindParam(10, $id);
+            $query->execute();
+            return true;
+        } catch (PDOException $e) {
+            echo "Failed to update attendance: " . $e->getMessage();
+            return false;
+        }
+    }
+
+    public function deleteAttendance($id)
+    {
+        try {
+            $query = $this->db->prepare("DELETE FROM attendance WHERE id=?");
+            $query->bindParam(1, $id);
+            $query->execute();
+            return true;
+        } catch (PDOException $e) {
+            echo "Failed to delete attendance: " . $e->getMessage();
+            return false;
+        }
+    }
+
+    public function getAttendanceById($id)
+    {
+        try {
+            $query = $this->db->prepare("SELECT * FROM attendance WHERE id=?");
+            $query->bindParam(1, $id);
+            $query->execute();
             return $query->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
+            echo "Failed to fetch attendance: " . $e->getMessage();
             return null;
-        }
-    }
-
-    // UPDATE
-    public function updateRegistration($id, $full_name, $email, $phone, $address, $check_in_date, $check_out_date, $room_type, $num_guests, $special_requests)
-    {
-        try {
-            $query = $this->db->prepare("UPDATE hotel_registrations SET full_name=?, email=?, phone=?, address=?, check_in_date=?, check_out_date=?, room_type=?, num_guests=?, special_requests=? WHERE id=?");
-            $query->execute([$full_name, $email, $phone, $address, $check_in_date, $check_out_date, $room_type, $num_guests, $special_requests, $id]);
-            return true;
-        } catch (PDOException $e) {
-            return $e->getMessage();
-        }
-    }
-
-    // DELETE
-    public function deleteRegistration($id)
-    {
-        try {
-            $query = $this->db->prepare("DELETE FROM hotel_registrations WHERE id = ?");
-            $query->execute([$id]);
-            return true;
-        } catch (PDOException $e) {
-            return $e->getMessage();
         }
     }
 }
