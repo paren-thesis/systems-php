@@ -1,12 +1,14 @@
 <?php session_start(); ?>
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Class Attendance - Admin View</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <link rel="stylesheet" href="custom-style.css">
 </head>
+
 <body>
     <div id="wrapper">
         <header id="header">
@@ -71,7 +73,9 @@
                                         </tr>
                                     <?php endforeach;
                                 else: ?>
-                                    <tr><td colspan="12">No attendance records found.</td></tr>
+                                    <tr>
+                                        <td colspan="12">No attendance records found.</td>
+                                    </tr>
                                 <?php endif; ?>
                             </tbody>
                         </table>
@@ -88,4 +92,5 @@
         </footer>
     </div>
 </body>
+
 </html>

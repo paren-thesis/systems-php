@@ -2,13 +2,17 @@
 
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Class Attendance Form</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <link rel="stylesheet" href="custom-style.css">
-    <noscript><link rel="stylesheet" href="custom-style.css" /></noscript>
+    <noscript>
+        <link rel="stylesheet" href="custom-style.css" />
+    </noscript>
 </head>
+
 <body>
     <div id="wrapper">
         <header id="header">
@@ -80,11 +84,13 @@
                         </div>
                     </form>
                     <div class="field text-right">
-                                <ul class="actions">
-                                    <button><a href="view.php">View All Attendence</a></button>
-                                </ul>
-                            </div>
-                    <?php if (isset($_SESSION['errors'])) { unset($_SESSION['errors']); } ?>
+                        <ul class="actions">
+                            <button><a href="view.php">View All Attendence</a></button>
+                        </ul>
+                    </div>
+                    <?php if (isset($_SESSION['errors'])) {
+                        unset($_SESSION['errors']);
+                    } ?>
                 </section>
             </div>
         </div>
@@ -94,4 +100,5 @@
         </footer>
     </div>
 </body>
+
 </html>

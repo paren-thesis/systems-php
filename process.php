@@ -4,7 +4,7 @@ session_start();
 require_once("database.php");
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    
+
     if (!isset($_SESSION["errors"])) {
         $_SESSION["errors"] = [];
     }
@@ -45,7 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } elseif (!in_array($status, ['Present', 'Absent', 'Late'])) {
         $_SESSION["errors"]["status"] = "Invalid status";
     }
-    
+
     if (!empty($remarks) && strlen($remarks) > 255) {
         $_SESSION["errors"]["remarks"] = "Remarks too long";
     }
@@ -58,11 +58,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $_SESSION["errors"]["period"] = "Period is required";
     }
 
-   
+
     if (empty($_SESSION["errors"])) {
         $db = new Database("localhost", "root", "", "class_attendance");
         if ($db->storeAttendance($student_name, $student_id, $class, $subject, $date, $status, $remarks, $teacher_name, $period)) {
-            
+
             unset($_SESSION["errors"]);
             $_SESSION["success"] = "Attendance recorded successfully!";
             header("Location: index.php");
