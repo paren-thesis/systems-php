@@ -1,62 +1,50 @@
 <?php
 class Database
 {
-    private $db;
-    private $hostname;
-    private $username;
-    private $password;
-    private $database;
+    private $connection;
 
-    public function __construct($hostname, $username, $password, $database)
-    {
-        $this->hostname = $hostname;
-        $this->username = $username;
-        $this->password = $password;
-        $this->database = $database;
-        $this->connect();
-    }
-
-    public function connect()
+    public function __construct($host, $username, $password, $dbname)
     {
         try {
-            $dsn = "mysql:host={$this->hostname};dbname={$this->database};charset=utf8mb4";
-            $this->db = new PDO($dsn, $this->username, $this->password);
-            $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            return $this->db;
+            $this->connection = new PDO(
+                "mysql:host=$host;dbname=$dbname",
+                $username,
+                $password
+            );
+            $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
-            die("Database connection failed: " . $e->getMessage());
+            echo "Connection failed: " . $e->getMessage();
         }
     }
 
+    // Add a new task
     public function storeTask($title, $description)
     {
-        try {
-            $query = $this->db->prepare("INSERT INTO tasks (title, description) VALUES (?, ?)");
-            $query->execute([$title, $description]);
-            return true;
-        } catch (PDOException $e) {
-            return false;
-        }
+        $stmt = $this->connection->prepare("INSERT INTO tasks (title, description) VALUES (?, ?)");
+        return $stmt->execute([$title, $description]);
     }
 
+    // Get all tasks
     public function getAllTasks()
     {
-        try {
-            $query = $this->db->query("SELECT * FROM tasks ORDER BY created_at DESC");
-            return $query->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            return [];
-        }
+        $sql = "SELECT * FROM tasks";
+        return $this->connection->query($sql)->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Delete a task
     public function deleteTask($id)
     {
-        try {
-            $query = $this->db->prepare("DELETE FROM tasks WHERE id = ?");
-            $query->execute([$id]);
-            return true;
-        } catch (PDOException $e) {
-            return false;
-        }
+        $stmt = $this->connection->prepare("DELETE FROM tasks WHERE id = ?");
+        return $stmt->execute([$id]);
     }
 }
+// Example usage
+// $db = new SimpleDatabase();
+// $db->addTask("Buy groceries", "Get milk and bread");
+// $tasks = $db->getTasks();
+// foreach ($tasks as $task) {
+//     echo $task['title'] . "\n";
+// }
+// $db->removeTask(1);
+// Uncomment the example usage to test the class
+// Note: Ensure that the 'tasks' table exists in your 'myapp' database with appropriate columns.    
