@@ -39,7 +39,7 @@ class Database
     }
 }
 // Example usage
-// $db = new SimpleDatabase();
+// $db = new Database();
 // $db->addTask("Buy groceries", "Get milk and bread");
 // $tasks = $db->getTasks();
 // foreach ($tasks as $task) {
